@@ -75,7 +75,7 @@ if page == "📊 Dashboard":
     col1.metric("🍱 Food Listings",    f"{run_query('SELECT COUNT(*) AS c FROM food_listings')['c'][0]:,}")
     col2.metric("📦 Total Quantity",   f"{run_query('SELECT SUM(Quantity) AS c FROM food_listings')['c'][0]:,} units")
     col3.metric("📋 Total Claims",     f"{run_query('SELECT COUNT(*) AS c FROM claims')['c'][0]:,}")
-    col4.metric("✅ Completed Claims", f"{run_query(\"SELECT COUNT(*) AS c FROM claims WHERE Status='Completed'\")['c'][0]:,}")
+    col4.metric("✅ Completed Claims", f"{run_query("SELECT COUNT(*) AS c FROM claims WHERE Status='Completed'")['c'][0]:,}")
     col5.metric("⚠️ Unclaimed Food",  f"{run_query('SELECT COUNT(*) AS c FROM food_listings f LEFT JOIN claims c ON f.Food_ID=c.Food_ID WHERE c.Claim_ID IS NULL')['c'][0]:,}")
     st.markdown("---")
     col1,col2 = st.columns(2)
