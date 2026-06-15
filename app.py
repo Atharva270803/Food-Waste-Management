@@ -68,7 +68,7 @@ if not status_filter:    status_filter    = ALL_STATUSES
 
 # ── DASHBOARD ────────────────────────────────────────────────
 if page == "📊 Dashboard":
-    st.title("📊 Food Wastage Management — Dashboard")
+    st.title("📊 Food Wastage Management - Dashboard")
     st.markdown("Overview of food donations, claims, and distribution activity.")
     st.markdown("---")
     col1,col2,col3,col4,col5 = st.columns(5)
@@ -169,57 +169,57 @@ elif page == "📋 Claims":
 
 # ── ANALYTICS ────────────────────────────────────────────────
 elif page == "📈 Analytics (15 Queries)":
-    st.title("📈 Analytics — 15 SQL Queries")
+    st.title("📈 Analytics - 15 SQL Queries")
     query_choice = st.selectbox("Select Query", [
-        "Q1 — Food listings by provider type",
-        "Q2 — Top 10 most donated food items",
-        "Q3 — Food availability by type and meal",
-        "Q4 — Claim status distribution",
-        "Q5 — Completion rate by receiver type",
-        "Q6 — Top 10 most active providers",
-        "Q7 — Top 10 most active receivers",
-        "Q8 — Unclaimed food listings",
-        "Q9 — Claimed vs available by food type",
-        "Q10 — Daily claim activity trend",
-        "Q11 — Expiry urgency vs claim status",
-        "Q12 — Provider performance scorecard",
-        "Q13 — Food distribution by location",
-        "Q14 — Meal type demand analysis",
-        "Q15 — Food waste risk report",
+        "Q1 - Food listings by provider type",
+        "Q2 - Top 10 most donated food items",
+        "Q3 - Food availability by type and meal",
+        "Q4 - Claim status distribution",
+        "Q5 - Completion rate by receiver type",
+        "Q6 - Top 10 most active providers",
+        "Q7 - Top 10 most active receivers",
+        "Q8 - Unclaimed food listings",
+        "Q9 - Claimed vs available by food type",
+        "Q10 - Daily claim activity trend",
+        "Q11 - Expiry urgency vs claim status",
+        "Q12 - Provider performance scorecard",
+        "Q13 - Food distribution by location",
+        "Q14 - Meal type demand analysis",
+        "Q15 - Food waste risk report",
     ])
     queries = {
-        "Q1 — Food listings by provider type": "SELECT Provider_Type, COUNT(*) AS total_listings, SUM(Quantity) AS total_quantity, ROUND(AVG(Quantity),2) AS avg_quantity, ROUND(COUNT(*)*100.0/(SELECT COUNT(*) FROM food_listings),2) AS pct_of_total FROM food_listings GROUP BY Provider_Type ORDER BY total_quantity DESC",
-        "Q2 — Top 10 most donated food items": "SELECT Food_Name, COUNT(*) AS times_listed, SUM(Quantity) AS total_quantity, Food_Type, Meal_Type FROM food_listings GROUP BY Food_Name, Food_Type, Meal_Type ORDER BY total_quantity DESC LIMIT 10",
-        "Q3 — Food availability by type and meal": "SELECT Food_Type, Meal_Type, COUNT(*) AS listings, SUM(Quantity) AS total_quantity, ROUND(AVG(Quantity),2) AS avg_quantity FROM food_listings GROUP BY Food_Type, Meal_Type ORDER BY Food_Type, Meal_Type",
-        "Q4 — Claim status distribution": "SELECT Status, COUNT(*) AS total_claims, ROUND(COUNT(*)*100.0/(SELECT COUNT(*) FROM claims),2) AS percentage FROM claims GROUP BY Status ORDER BY total_claims DESC",
-        "Q5 — Completion rate by receiver type": "SELECT r.Type AS receiver_type, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN c.Status='Cancelled' THEN 1 ELSE 0 END) AS cancelled, SUM(CASE WHEN c.Status='Pending' THEN 1 ELSE 0 END) AS pending, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/COUNT(c.Claim_ID),2) AS completion_rate_pct FROM claims c JOIN receivers r ON c.Receiver_ID=r.Receiver_ID GROUP BY r.Type ORDER BY completion_rate_pct DESC",
-        "Q6 — Top 10 most active providers": "SELECT p.Name AS provider_name, p.Type, p.City, COUNT(f.Food_ID) AS total_listings, SUM(f.Quantity) AS total_quantity_donated FROM providers p JOIN food_listings f ON p.Provider_ID=f.Provider_ID GROUP BY p.Provider_ID, p.Name, p.Type, p.City ORDER BY total_quantity_donated DESC LIMIT 10",
-        "Q7 — Top 10 most active receivers": "SELECT r.Name AS receiver_name, r.Type, r.City, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/COUNT(c.Claim_ID),2) AS success_rate_pct FROM receivers r JOIN claims c ON r.Receiver_ID=c.Receiver_ID GROUP BY r.Receiver_ID, r.Name, r.Type, r.City ORDER BY total_claims DESC LIMIT 10",
-        "Q8 — Unclaimed food listings": f"SELECT f.Food_ID, f.Food_Name, f.Quantity, f.Expiry_Date, {EXPIRY_DAYS} AS Days_Until_Expiry, f.Food_Type, f.Meal_Type, p.Name AS provider_name, p.City FROM food_listings f JOIN providers p ON f.Provider_ID=p.Provider_ID LEFT JOIN claims c ON f.Food_ID=c.Food_ID WHERE c.Claim_ID IS NULL ORDER BY Days_Until_Expiry ASC LIMIT 20",
-        "Q9 — Claimed vs available by food type": "SELECT f.Food_Type, SUM(f.Quantity) AS total_available, COUNT(DISTINCT f.Food_ID) AS total_listings, COUNT(DISTINCT c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed_claims, ROUND(COUNT(DISTINCT c.Claim_ID)*100.0/COUNT(DISTINCT f.Food_ID),2) AS claims_per_listing FROM food_listings f LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY f.Food_Type ORDER BY total_available DESC",
-        "Q10 — Daily claim activity trend": "SELECT DAYNAME(Timestamp) AS Claim_Day, COUNT(*) AS total_claims, SUM(CASE WHEN Status='Completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN Status='Cancelled' THEN 1 ELSE 0 END) AS cancelled, SUM(CASE WHEN Status='Pending' THEN 1 ELSE 0 END) AS pending, ROUND(SUM(CASE WHEN Status='Completed' THEN 1 ELSE 0 END)*100.0/COUNT(*),2) AS completion_rate_pct FROM claims GROUP BY Claim_Day ORDER BY total_claims DESC",
-        "Q11 — Expiry urgency vs claim status": f"SELECT {EXPIRY_CASE} AS Expiry_Status, COUNT(DISTINCT f.Food_ID) AS food_listings, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN c.Status='Cancelled' THEN 1 ELSE 0 END) AS cancelled, SUM(CASE WHEN c.Status='Pending' THEN 1 ELSE 0 END) AS pending, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/NULLIF(COUNT(c.Claim_ID),0),2) AS completion_rate_pct FROM food_listings f LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY Expiry_Status",
-        "Q12 — Provider performance scorecard": "SELECT p.Name AS provider_name, p.Type, COUNT(DISTINCT f.Food_ID) AS food_listings, SUM(f.Quantity) AS total_quantity, COUNT(DISTINCT c.Claim_ID) AS claims_received, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed_claims, ROUND(COUNT(DISTINCT c.Claim_ID)*100.0/NULLIF(COUNT(DISTINCT f.Food_ID),0),2) AS claim_rate_pct FROM providers p JOIN food_listings f ON p.Provider_ID=f.Provider_ID LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY p.Provider_ID, p.Name, p.Type ORDER BY claim_rate_pct DESC LIMIT 15",
-        "Q13 — Food distribution by location": "SELECT f.Location, COUNT(DISTINCT f.Food_ID) AS total_listings, SUM(f.Quantity) AS total_quantity, COUNT(DISTINCT c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed_claims, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/NULLIF(COUNT(DISTINCT c.Claim_ID),0),2) AS completion_rate_pct FROM food_listings f LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY f.Location ORDER BY total_quantity DESC LIMIT 15",
-        "Q14 — Meal type demand analysis": "SELECT f.Meal_Type, COUNT(DISTINCT f.Food_ID) AS food_listings, SUM(f.Quantity) AS total_quantity, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed_claims, ROUND(COUNT(c.Claim_ID)*100.0/NULLIF(COUNT(DISTINCT f.Food_ID),0),2) AS claims_per_listing, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/NULLIF(COUNT(c.Claim_ID),0),2) AS completion_rate_pct FROM food_listings f LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY f.Meal_Type ORDER BY total_claims DESC",
-        "Q15 — Food waste risk report": f"SELECT f.Food_ID, f.Food_Name, f.Quantity, f.Expiry_Date, {EXPIRY_DAYS} AS Days_Until_Expiry, {EXPIRY_CASE} AS Expiry_Status, f.Food_Type, f.Meal_Type, p.Name AS provider_name, p.Type AS provider_type, p.City, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN c.Status='Pending' THEN 1 ELSE 0 END) AS pending, CASE WHEN COUNT(c.Claim_ID)=0 THEN 'No Claims - High Risk' WHEN SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)>0 THEN 'Claimed - Safe' WHEN SUM(CASE WHEN c.Status='Pending' THEN 1 ELSE 0 END)>0 THEN 'Pending - Monitor' ELSE 'Cancelled Only - At Risk' END AS waste_risk_label FROM food_listings f JOIN providers p ON f.Provider_ID=p.Provider_ID LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY f.Food_ID,f.Food_Name,f.Quantity,f.Expiry_Date,f.Food_Type,f.Meal_Type,p.Name,p.Type,p.City ORDER BY f.Quantity DESC LIMIT 20",
+        "Q1 - Food listings by provider type": "SELECT Provider_Type, COUNT(*) AS total_listings, SUM(Quantity) AS total_quantity, ROUND(AVG(Quantity),2) AS avg_quantity, ROUND(COUNT(*)*100.0/(SELECT COUNT(*) FROM food_listings),2) AS pct_of_total FROM food_listings GROUP BY Provider_Type ORDER BY total_quantity DESC",
+        "Q2 - Top 10 most donated food items": "SELECT Food_Name, COUNT(*) AS times_listed, SUM(Quantity) AS total_quantity, Food_Type, Meal_Type FROM food_listings GROUP BY Food_Name, Food_Type, Meal_Type ORDER BY total_quantity DESC LIMIT 10",
+        "Q3 - Food availability by type and meal": "SELECT Food_Type, Meal_Type, COUNT(*) AS listings, SUM(Quantity) AS total_quantity, ROUND(AVG(Quantity),2) AS avg_quantity FROM food_listings GROUP BY Food_Type, Meal_Type ORDER BY Food_Type, Meal_Type",
+        "Q4 - Claim status distribution": "SELECT Status, COUNT(*) AS total_claims, ROUND(COUNT(*)*100.0/(SELECT COUNT(*) FROM claims),2) AS percentage FROM claims GROUP BY Status ORDER BY total_claims DESC",
+        "Q5 - Completion rate by receiver type": "SELECT r.Type AS receiver_type, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN c.Status='Cancelled' THEN 1 ELSE 0 END) AS cancelled, SUM(CASE WHEN c.Status='Pending' THEN 1 ELSE 0 END) AS pending, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/COUNT(c.Claim_ID),2) AS completion_rate_pct FROM claims c JOIN receivers r ON c.Receiver_ID=r.Receiver_ID GROUP BY r.Type ORDER BY completion_rate_pct DESC",
+        "Q6 - Top 10 most active providers": "SELECT p.Name AS provider_name, p.Type, p.City, COUNT(f.Food_ID) AS total_listings, SUM(f.Quantity) AS total_quantity_donated FROM providers p JOIN food_listings f ON p.Provider_ID=f.Provider_ID GROUP BY p.Provider_ID, p.Name, p.Type, p.City ORDER BY total_quantity_donated DESC LIMIT 10",
+        "Q7 - Top 10 most active receivers": "SELECT r.Name AS receiver_name, r.Type, r.City, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/COUNT(c.Claim_ID),2) AS success_rate_pct FROM receivers r JOIN claims c ON r.Receiver_ID=c.Receiver_ID GROUP BY r.Receiver_ID, r.Name, r.Type, r.City ORDER BY total_claims DESC LIMIT 10",
+        "Q8 - Unclaimed food listings": f"SELECT f.Food_ID, f.Food_Name, f.Quantity, f.Expiry_Date, {EXPIRY_DAYS} AS Days_Until_Expiry, f.Food_Type, f.Meal_Type, p.Name AS provider_name, p.City FROM food_listings f JOIN providers p ON f.Provider_ID=p.Provider_ID LEFT JOIN claims c ON f.Food_ID=c.Food_ID WHERE c.Claim_ID IS NULL ORDER BY Days_Until_Expiry ASC LIMIT 20",
+        "Q9 - Claimed vs available by food type": "SELECT f.Food_Type, SUM(f.Quantity) AS total_available, COUNT(DISTINCT f.Food_ID) AS total_listings, COUNT(DISTINCT c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed_claims, ROUND(COUNT(DISTINCT c.Claim_ID)*100.0/COUNT(DISTINCT f.Food_ID),2) AS claims_per_listing FROM food_listings f LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY f.Food_Type ORDER BY total_available DESC",
+        "Q10 - Daily claim activity trend": "SELECT DAYNAME(Timestamp) AS Claim_Day, COUNT(*) AS total_claims, SUM(CASE WHEN Status='Completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN Status='Cancelled' THEN 1 ELSE 0 END) AS cancelled, SUM(CASE WHEN Status='Pending' THEN 1 ELSE 0 END) AS pending, ROUND(SUM(CASE WHEN Status='Completed' THEN 1 ELSE 0 END)*100.0/COUNT(*),2) AS completion_rate_pct FROM claims GROUP BY Claim_Day ORDER BY total_claims DESC",
+        "Q11 - Expiry urgency vs claim status": f"SELECT {EXPIRY_CASE} AS Expiry_Status, COUNT(DISTINCT f.Food_ID) AS food_listings, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN c.Status='Cancelled' THEN 1 ELSE 0 END) AS cancelled, SUM(CASE WHEN c.Status='Pending' THEN 1 ELSE 0 END) AS pending, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/NULLIF(COUNT(c.Claim_ID),0),2) AS completion_rate_pct FROM food_listings f LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY Expiry_Status",
+        "Q12 - Provider performance scorecard": "SELECT p.Name AS provider_name, p.Type, COUNT(DISTINCT f.Food_ID) AS food_listings, SUM(f.Quantity) AS total_quantity, COUNT(DISTINCT c.Claim_ID) AS claims_received, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed_claims, ROUND(COUNT(DISTINCT c.Claim_ID)*100.0/NULLIF(COUNT(DISTINCT f.Food_ID),0),2) AS claim_rate_pct FROM providers p JOIN food_listings f ON p.Provider_ID=f.Provider_ID LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY p.Provider_ID, p.Name, p.Type ORDER BY claim_rate_pct DESC LIMIT 15",
+        "Q13 - Food distribution by location": "SELECT f.Location, COUNT(DISTINCT f.Food_ID) AS total_listings, SUM(f.Quantity) AS total_quantity, COUNT(DISTINCT c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed_claims, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/NULLIF(COUNT(DISTINCT c.Claim_ID),0),2) AS completion_rate_pct FROM food_listings f LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY f.Location ORDER BY total_quantity DESC LIMIT 15",
+        "Q14 - Meal type demand analysis": "SELECT f.Meal_Type, COUNT(DISTINCT f.Food_ID) AS food_listings, SUM(f.Quantity) AS total_quantity, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed_claims, ROUND(COUNT(c.Claim_ID)*100.0/NULLIF(COUNT(DISTINCT f.Food_ID),0),2) AS claims_per_listing, ROUND(SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)*100.0/NULLIF(COUNT(c.Claim_ID),0),2) AS completion_rate_pct FROM food_listings f LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY f.Meal_Type ORDER BY total_claims DESC",
+        "Q15 - Food waste risk report": f"SELECT f.Food_ID, f.Food_Name, f.Quantity, f.Expiry_Date, {EXPIRY_DAYS} AS Days_Until_Expiry, {EXPIRY_CASE} AS Expiry_Status, f.Food_Type, f.Meal_Type, p.Name AS provider_name, p.Type AS provider_type, p.City, COUNT(c.Claim_ID) AS total_claims, SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END) AS completed, SUM(CASE WHEN c.Status='Pending' THEN 1 ELSE 0 END) AS pending, CASE WHEN COUNT(c.Claim_ID)=0 THEN 'No Claims - High Risk' WHEN SUM(CASE WHEN c.Status='Completed' THEN 1 ELSE 0 END)>0 THEN 'Claimed - Safe' WHEN SUM(CASE WHEN c.Status='Pending' THEN 1 ELSE 0 END)>0 THEN 'Pending - Monitor' ELSE 'Cancelled Only - At Risk' END AS waste_risk_label FROM food_listings f JOIN providers p ON f.Provider_ID=p.Provider_ID LEFT JOIN claims c ON f.Food_ID=c.Food_ID GROUP BY f.Food_ID,f.Food_Name,f.Quantity,f.Expiry_Date,f.Food_Type,f.Meal_Type,p.Name,p.Type,p.City ORDER BY f.Quantity DESC LIMIT 20",
     }
     df = run_query(queries[query_choice])
     st.markdown(f"**{len(df)} rows returned**")
     st.dataframe(df, use_container_width=True)
-    if query_choice == "Q1 — Food listings by provider type":
+    if query_choice == "Q1 - Food listings by provider type":
         fig = px.bar(df, x='Provider_Type', y='total_quantity', color='Provider_Type', title="Total Quantity by Provider Type")
         st.plotly_chart(fig, use_container_width=True)
-    elif query_choice == "Q4 — Claim status distribution":
+    elif query_choice == "Q4 - Claim status distribution":
         fig = px.pie(df, values='total_claims', names='Status', color_discrete_map={'Completed':'#2ecc71','Pending':'#f39c12','Cancelled':'#e74c3c'}, title="Claim Status Distribution", hole=0.4)
         st.plotly_chart(fig, use_container_width=True)
-    elif query_choice == "Q5 — Completion rate by receiver type":
+    elif query_choice == "Q5 - Completion rate by receiver type":
         fig = px.bar(df, x='receiver_type', y='completion_rate_pct', color='receiver_type', title="Completion Rate by Receiver Type")
         st.plotly_chart(fig, use_container_width=True)
-    elif query_choice == "Q10 — Daily claim activity trend":
+    elif query_choice == "Q10 - Daily claim activity trend":
         fig = px.bar(df, x='Claim_Day', y='total_claims', color='completion_rate_pct', color_continuous_scale='RdYlGn', title="Claims by Day of Week")
         st.plotly_chart(fig, use_container_width=True)
-    elif query_choice == "Q14 — Meal type demand analysis":
+    elif query_choice == "Q14 - Meal type demand analysis":
         fig = px.bar(df, x='Meal_Type', y='total_claims', color='completion_rate_pct', color_continuous_scale='Greens', title="Claims by Meal Type")
         st.plotly_chart(fig, use_container_width=True)
 
@@ -241,13 +241,13 @@ elif page == "➕ CRUD Operations":
             with col2:
                 meal_type = st.selectbox("Meal Type*", ALL_MEAL_TYPES)
                 location  = st.text_input("Location*")
-                provider  = st.selectbox("Provider*", providers.apply(lambda r: f"{r['Provider_ID']} — {r['Name']} ({r['Type']})", axis=1).tolist())
+                provider  = st.selectbox("Provider*", providers.apply(lambda r: f"{r['Provider_ID']} - {r['Name']} ({r['Type']})", axis=1).tolist())
             submitted = st.form_submit_button("Add Food Listing")
             if submitted:
                 if not food_name or not location:
                     st.error("Food Name and Location are required.")
                 else:
-                    pid     = int(provider.split(" — ")[0])
+                    pid     = int(provider.split(" - ")[0])
                     ptype   = providers[providers['Provider_ID']==pid]['Type'].values[0]
                     next_id = run_query("SELECT MAX(Food_ID)+1 AS nid FROM food_listings")['nid'][0]
                     run_write("INSERT INTO food_listings (Food_ID,Food_Name,Quantity,Expiry_Date,Provider_ID,Provider_Type,Location,Food_Type,Meal_Type) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
