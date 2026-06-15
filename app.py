@@ -54,7 +54,7 @@ ALL_MEAL_TYPES = ["Breakfast", "Lunch", "Dinner", "Snacks"]
 ALL_STATUSES   = ["Pending", "Completed", "Cancelled"]
 
 st.sidebar.image("https://img.icons8.com/color/96/salad.png", width=80)
-st.sidebar.title("🥗 Food Wastage\nManagement")
+st.sidebar.title("🥗 Food Wastage Management")
 st.sidebar.markdown("---")
 page = st.sidebar.radio("Navigate", ["📊 Dashboard","🍱 Food Listings","🏢 Providers","🤝 Receivers","📋 Claims","📈 Analytics (15 Queries)","➕ CRUD Operations"])
 st.sidebar.markdown("---")
