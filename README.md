@@ -1,10 +1,9 @@
+# Food Waste Management System
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.58-red)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)
 ![Railway](https://img.shields.io/badge/Database-Railway-purple)
 ![Status](https://img.shields.io/badge/Status-Live-brightgreen)
-
-# Food Waste Management System
 
 A full-stack data analytics web application that connects food providers (restaurants, supermarkets, grocery stores, catering services) with receivers (NGOs, shelters, charities, individuals) to reduce food wastage. Built with MySQL for data storage and analysis, and Streamlit for an interactive web interface with real-time CRUD operations and 15 analytical SQL queries.
 
@@ -12,7 +11,7 @@ A full-stack data analytics web application that connects food providers (restau
 
 ## Live Demo
 
-[https://food-waste-management-cv6o4yv7xdmmqbntsxxif2.streamlit.app](https://food-waste-management-cv6o4yv7xdmmqbntsxxif2.streamlit.app)
+[Live Streamlit app](https://food-waste-management-cv6o4yv7xdmmqbntsxxif2.streamlit.app)
 
 ---
 
